@@ -1,61 +1,77 @@
-var imgs = [];
+var style = {
+	fontSize: 100,
+	stroke: 'white',
+	align:'left',
+	strokeThickness:6,
+	fill: 'black'
+};
 
-for (i=1; i<=10;i++) {
-	const str = `modules/genesys-minion-counter/images/${i}.webp`;
-	imgs.push(str);
-}
-imgs.unshift("icons/svg/skull.svg");
-
-
-Hooks.on("createToken", (token) => {
-	if (token.actor.data.type == "minion") {
-		const count = token.actor.data.data.quantity.value;
-		if (count < 10 && count > 0) token.data.effects.push(imgs[count]);
-		if (count >= 10) token.data.effects.push(imgs[10]);
-		if (count <= 0) token.data.effects.push(imgs[0]);
-	}
+Hooks.on("closeSettingsConfig", async () => {
+	style.fill = game.settings.get("genesys-minion-counter", "textColor");
+	updateAllIcons();
 });
 
-Hooks.on("updateActor", async (...args)=> {
-	
-	if (args[0].data.type == "minion" && args[0].data.token.actorLink) {
-		for (const token of canvas.tokens.placeables.filter(i => i.actor.data.type == "minion" && i.data.actorLink)) {
-			await updateIcon(token.document);
-		}
-	} else {
-		for (const token of canvas.tokens.placeables.filter(i => i.actor.data.type == "minion" && !i.data.actorLink)) {
-			await updateIcon(token.document);
-		}
-	}
+Hooks.on("canvasReady", async () => {
+	style.fill = game.settings.get("genesys-minion-counter", "textColor");
+	updateAllIcons();
+});
+
+Hooks.once("init", () => {
+	game.settings.register("genesys-minion-counter", "textColor", {
+		name: "Text Color",
+		scope: "world",
+		config: true,
+		type: String,
+		choices: {
+			"black": "Black",
+			"white": "White",
+			"#fcba03": "Gold",
+			"#fc0303": "Red",
+			"#0bd600": "Lime",
+			"#5a3ef7": "Blue"
+		},
+		default: "black",
+	});
+	game.settings.register("genesys-minion-counter", "isEnabled", {
+		name: "Enabled",
+		scope: "world",
+		config: true,
+		type: Boolean,
+		default: true
+	});
+
+		
+});
+
+Hooks.on("createToken", async (...args) => {
+	setTimeout(async () => {
+		await updateAllIcons();
+	}, 5);
+});
+
+Hooks.on("updateActor", async (...args) => {
+	if (args[0].data.type == "minion") {
+		updateAllIcons();
+	}	
 });
 
 async function updateIcon (token) {
-	
-	let currentEffects =[];
-	const minioncount = token.actor.data.data.quantity.value;
-
-	// get all current custom status effects on token
-
-	for (const eff of token.data.effects) {
-		currentEffects.push(eff);
-	}
-	
-	// get rid of any existing counter icons
-	
-		for (const i of imgs) {
-			if (token.data.effects.includes(i)) 
-				currentEffects.splice(currentEffects.indexOf(i),1);					
+		for (const c of token.icon.children) {
+			if (!!c._text) token.icon.removeChild(c)
+		}		
+		if (game.settings.get("genesys-minion-counter","isEnabled")) {
+		
+		let minioncount = token.actor.data.data.quantity.value;
+		if (minioncount < 0) minioncount = 0;
+		let text = new PIXI.Text(minioncount,style);
+		//text.x =0;
+		// text.y =0;
+		token.icon.addChild(text);
 		}
-	
-	// put the proper status icon on it
-	
-	if (minioncount < 10 && minioncount > 0) currentEffects.unshift(imgs[minioncount]);	
-	else if (minioncount >= 10) currentEffects.unshift(imgs[10]);
-	else currentEffects.unshift(imgs[0]);		
-	
-	// maybe use flags in the future for something idk
-	// if (!token.getFlag("genesys-minion-counter","hasCounter")) await token.setFlag("genesys-minion-counter","hasCounter",true);
-	
-	await token.update({effects:currentEffects})
 }
 
+async function updateAllIcons() {
+	for (const token of game.canvas.tokens.placeables.filter(i=> i.actor.data.type == "minion")) {
+		updateIcon(token);
+	}
+}
