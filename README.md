@@ -11,3 +11,5 @@ Minion groups now have status icons that automatically update based on the numbe
 Known issue: status icons sometimes don't persist on scene change or window refresh. 
 
 MIT License. Use this code if you want, but I hope you improve it first :)
+
+(icons made by me as well)
