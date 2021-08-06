@@ -1,4 +1,4 @@
-let imgs = [];
+var imgs = [];
 
 for (i=1; i<=10;i++) {
 	const str = `modules/genesys-minion-counter/images/${i}.webp`;
@@ -15,10 +15,17 @@ Hooks.on("createToken", (token) => {
 	}
 });
 
-Hooks.on("updateToken", async (...args)=> {	
-
-	if (args[0].actor.data.type == "minion") await updateIcon(args[0]);	
+Hooks.on("updateActor", async (...args)=> {
 	
+	if (args[0].data.type == "minion" && args[0].data.token.actorLink) {
+		for (const token of canvas.tokens.placeables.filter(i => i.actor.data.type == "minion" && i.data.actorLink)) {
+			await updateIcon(token.document);
+		}
+	} else {
+		for (const token of canvas.tokens.placeables.filter(i => i.actor.data.type == "minion" && !i.data.actorLink)) {
+			await updateIcon(token.document);
+		}
+	}
 });
 
 async function updateIcon (token) {
@@ -45,18 +52,6 @@ async function updateIcon (token) {
 	else if (minioncount >= 10) currentEffects.unshift(imgs[10]);
 	else currentEffects.unshift(imgs[0]);		
 	
-	// the setTimeout seems to get rid of the weird random console error ... i don't know why, but it works.
-	
-	setTimeout(async () => {
-	await token.update({effects:currentEffects});},15);	
+	await token.update({effects:currentEffects})
 }
 
-Hooks.on("updateActor", async (...args)=> {
-	const tokenName = args[0].data.token.name;
-	if (args[0].data.type == "minion" && !!canvas.tokens.placeables.find(i=> i.data.name == tokenName)) {
-		const token = canvas.tokens.placeables.find(i=> i.data.name == tokenName);
-		for (const i of canvas.tokens.placeables.filter(i=>i.data.name == tokenName)) {
-			await updateIcon(i.document);
-		}
-	}
-});
