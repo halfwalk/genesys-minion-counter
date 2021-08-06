@@ -9,3 +9,5 @@ Minion groups now have status icons that automatically update based on the numbe
 <img src="https://raw.githubusercontent.com/halfwalk/halfwalk.github.io/main/images/gifs/demo.gif" alt="demo" style="zoom:70%;" />
 
 Known issue: status icons sometimes don't persist on scene change or window refresh. 
+
+MIT License. Use this code if you want, but I hope you improve it first :)
