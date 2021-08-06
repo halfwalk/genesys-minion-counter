@@ -11,13 +11,13 @@ Hooks.on("createToken", (token) => {
 		const count = token.actor.data.data.quantity.value;
 		if (count < 10 && count > 0) token.data.effects.push(imgs[count]);
 		if (count >= 10) token.data.effects.push(imgs[10]);
-		if (count <= 0) token.data.effects.push(skull);
+		if (count <= 0) token.data.effects.push(imgs[0]);
 	}
 });
 
 Hooks.on("updateToken", async (...args)=> {	
 
-	if (args[0].actor.data.type == "minion") updateIcon(args[0]);	
+	if (args[0].actor.data.type == "minion") await updateIcon(args[0]);	
 	
 });
 
