@@ -41,7 +41,7 @@ Hooks.once("init", () => {
 		
 });
 
-Hooks.on("createToken", async (...args) => {
+Hooks.on("createToken", async () => {
 	setTimeout(async () => {
 		await updateAllIcons();
 	}, 5);
