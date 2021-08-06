@@ -1,40 +1,28 @@
 {
-  "name": "module",
-  "title": "New Module",
-  "description": "",
+  "name": "genesys-minion-counter",
+  "title": "Genesys Minion Counter",
+  "description": "Tracks count of minions in minion groups via an icon on minion tokens",
   "version": "This is auto replaced",
   "library": "false",
   "manifestPlusVersion": "1.0.0",
   "minimumCoreVersion": "0.8.8",
   "compatibleCoreVersion": "0.8.8",
+  "system":"starwarsffg",
   "authors": [
     {
-      "name": "The League of Extraordinary FVTT Developers",
-      "url": "https://github.com/League-of-Foundry-Developers",
-      "discord": "discordID#0001"
+      "name": "Midnight Rabite",
+      "url": "https://github.com/halfwalk",
+      "discord": "MidnightRabite#3312"
     }
   ],
-  "dependencies": [
-
-  ],
-  "conflicts": [
-    
-  ],
-  "esmodules": [
-    "/scripts/module.js"
-  ],
+  "dependencies": [],
+  "conflicts": [],
+  "esmodules": [],
   "scripts": [
-    "/scripts/lib/lib.js"
+    "/scripts/minionCountAdjuster.js"
   ],
-  "styles": [
-    "/styles/module.css"
-  ],
+  "styles": [],
   "languages": [
-    {
-      "lang": "en",
-      "name": "English",
-      "path": "languages/en.json"
-    }
   ],
   "url": "This is auto replaced",
   "manifest": "This is auto replaced",
@@ -42,7 +30,7 @@
   "media": [
     {
       "type": "icon",
-      "url": "https://avatars2.githubusercontent.com/u/71292812?s=400&u=ccdb4eeb7abf551ca8f314e5a9bfd0479a4d3d41&v=4"
+      "url": "https://avatars.githubusercontent.com/u/68490032?s=400&u=97024f7c3f98d68850f7de889e418432f27b6010&v=4"
     }
   ]
 }
