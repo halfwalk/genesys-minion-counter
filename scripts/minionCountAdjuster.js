@@ -7,12 +7,10 @@ var style = {
 };
 
 Hooks.on("closeSettingsConfig", async () => {
-	style.fill = game.settings.get("genesys-minion-counter", "textColor");
 	updateAllIcons();
 });
 
 Hooks.on("canvasReady", async () => {
-	style.fill = game.settings.get("genesys-minion-counter", "textColor");
 	updateAllIcons();
 });
 
@@ -64,13 +62,15 @@ async function updateIcon (token) {
 		let minioncount = token.actor.data.data.quantity.value;
 		if (minioncount < 0) minioncount = 0;
 		let text = new PIXI.Text(minioncount,style);
-		//text.x =0;
-		// text.y =0;
+		text.x -= token.icon.width;
+		text.y -= token.icon.height;
+		 
 		token.icon.addChild(text);
 		}
 }
 
 async function updateAllIcons() {
+	style.fill = game.settings.get("genesys-minion-counter", "textColor");
 	for (const token of game.canvas.tokens.placeables.filter(i=> i.actor.data.type == "minion")) {
 		updateIcon(token);
 	}
