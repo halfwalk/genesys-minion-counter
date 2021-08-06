@@ -19,31 +19,45 @@ Hooks.on("createToken", (token) => {
 });
 
 Hooks.on("updateToken", async (...args)=> {	
-	let token = args[0]
-	if (token.actor.data.type == "minion") {
-		let currentEffects =[];
-		const minioncount = token.actor.data.data.quantity.value;
-			
-			for (let eff of token.data.effects) {
-				currentEffects.push(eff);
+
+	if (args[0].actor.data.type == "minion") await updateIcon(args[0],false);	
+	
+});
+
+async function updateIcon (token) {
+	
+	let currentEffects =[];
+	const minioncount = token.actor.data.data.quantity.value;
+		for (let eff of token.data.effects) {
+			currentEffects.push(eff);
+		}
+			for (let i of imgs) {
+				if (token.data.effects.includes(i)) 
+					currentEffects.splice(currentEffects.indexOf(i),1);					
 			}
-				for (let i of imgs) {
-					if (token.data.effects.includes(i)) 
-						currentEffects.splice(currentEffects.indexOf(i),1);					
-				}
-			
-			if (token.data.effects.includes(tenPlus)) 
-				currentEffects.splice(token.data.effects.indexOf(tenPlus));
-			if (token.data.effects.includes(skull))
-				currentEffects.splice(token.data.effects.indexOf(skull));
 		
-		if (minioncount < 10 && minioncount > 0) currentEffects.unshift(imgs[minioncount]);	
-		else if (minioncount >= 10) currentEffects.unshift(tenPlus);
-		else if (minioncount <= 0) currentEffects.unshift(skull);		
-		
-		// the setTimeout seems to get rid of the weird random console error ... i don't know why, but it works.
-		
-		setTimeout(async () => {
-		await token.update({effects:currentEffects});},1);
+		if (token.data.effects.includes(tenPlus)) 
+			currentEffects.splice(token.data.effects.indexOf(tenPlus));
+		if (token.data.effects.includes(skull))
+			currentEffects.splice(token.data.effects.indexOf(skull));
+	
+	if (minioncount < 10 && minioncount > 0) currentEffects.unshift(imgs[minioncount]);	
+	else if (minioncount >= 10) currentEffects.unshift(tenPlus);
+	else if (minioncount <= 0) currentEffects.unshift(skull);		
+	
+	// the setTimeout seems to get rid of the weird random console error ... i don't know why, but it works.
+	
+	setTimeout(async () => {
+	await token.update({effects:currentEffects});},1);
+	
+}
+
+Hooks.on("updateActor", async (...args)=> {
+	const tokenName = args[0].data.token.name;
+	if (args[0].data.type == "minion" && !!canvas.tokens.placeables.find(i=> i.data.name == tokenName)) {
+		let token = canvas.tokens.placeables.find(i=> i.data.name == tokenName);
+		for (const i of canvas.tokens.placeables.filter(i=>i.data.name == tokenName)) {
+			await updateIcon(i.document);
+		}
 	}
 });
