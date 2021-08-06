@@ -17,7 +17,7 @@ Hooks.on("createToken", (token) => {
 
 Hooks.on("updateToken", async (...args)=> {	
 
-	if (args[0].actor.data.type == "minion") await updateIcon(args[0],false);	
+	if (args[0].actor.data.type == "minion") updateIcon(args[0]);	
 	
 });
 
