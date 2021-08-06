@@ -6,6 +6,7 @@ for (i=1; i<=10;i++) {
 }
 imgs.unshift("icons/svg/skull.svg");
 
+
 Hooks.on("createToken", (token) => {
 	if (token.actor.data.type == "minion") {
 		const count = token.actor.data.data.quantity.value;
@@ -51,6 +52,9 @@ async function updateIcon (token) {
 	if (minioncount < 10 && minioncount > 0) currentEffects.unshift(imgs[minioncount]);	
 	else if (minioncount >= 10) currentEffects.unshift(imgs[10]);
 	else currentEffects.unshift(imgs[0]);		
+	
+	// maybe use flags in the future for something idk
+	// if (!token.getFlag("genesys-minion-counter","hasCounter")) await token.setFlag("genesys-minion-counter","hasCounter",true);
 	
 	await token.update({effects:currentEffects})
 }
