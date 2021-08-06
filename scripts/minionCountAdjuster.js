@@ -1,15 +1,13 @@
-Hooks.once('init', async function() {
+let imgs = [];
+const skull = "icons/svg/skull.svg";
 
-	let imgs = [];
-	const skull = "icons/svg/skull.svg";
+for (i=0; i<10;i++) {
+	let str = `modules/genesys-minion-counter/images/${i}.png`;
+	imgs.push(str);
+}
+let tenPlus = `modules/genesys-minion-counter/images/10.png`;
 
-	for (i=0; i<10;i++) {
-		let str = `modules/genesys-minion-counter/images/${i}.png`;
-		imgs.push(str);
-	}
-	let tenPlus = `modules/genesys-minion-counter/images/10.png`;
 
-});
 
 Hooks.on("createToken", (token) => {
 	if (token.actor.data.type == "minion") {
