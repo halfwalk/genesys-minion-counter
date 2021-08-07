@@ -8,7 +8,6 @@
   "minimumCoreVersion": "0.8.8",
   "compatibleCoreVersion": "0.8.8",
   "system":"starwarsffg",
-  "socket":true,
   "authors": [
     {
       "name": "Midnight Rabite",
@@ -16,9 +15,6 @@
       "discord": "MidnightRabite#3312"
     }
   ],
-  "dependencies": [
-	{"name":"socketlib", "type": "module"}
-	],
   "conflicts": [],
   "esmodules": [],
   "scripts": [
