@@ -12,9 +12,11 @@ There are two different render styles.
 
 **Icon** renders the number to the icon layer. It looks prettier and is more compact, and renders on top of the token. However, it rotates along with the token. (I'm still trying to figure out how to handle this). If you never rotate your tokens, this is probably the mode to choose.
 
-![img](https://raw.githubusercontent.com/halfwalk/genesys-minion-counter/master/images/borderstyle.png)
+![img](https://raw.githubusercontent.com/halfwalk/genesys-minion-counter/master/images/iconstyle.png)
 
 **Border** renders the number above the icon. It takes up more space, but does not rotate along with the icon.
 
-![img](https://raw.githubusercontent.com/halfwalk/genesys-minion-counter/master/images/iconstyle.png)
+
+
+![img](https://raw.githubusercontent.com/halfwalk/genesys-minion-counter/master/images/borderstyle.png)
 
