@@ -22,9 +22,7 @@ Hooks.on("getSceneControlButtons", (controls) => {
 			title: "Minion Count Display",
 			icon: "fas fa-hashtag",
 //			onClick: () => {isEnabled = !isEnabled;socket.executeForEveryone("pushToggle", isEnabled);},
-			onClick: async () => {	isEnabled = !isEnabled;
-	console.log('pushing toggle' + isEnabled);
-			await updateAllIcons();},
+			onClick: async () => {isEnabled = !isEnabled;await updateAllIcons();},
 			visible: true,
 			toggle: true,
 			active: isEnabled
@@ -89,12 +87,12 @@ Hooks.once("init", () => {
 
 async function updateIcon (token) {
 	
-	if ("children" in token.border) {
+	if ("children" in token?.border) {
 		for (const c of token.border.children) {
 			if (!!c._text) token.border.removeChild(c);
 		}
 	}
-	if ("children" in token.icon) {
+	if ("children" in token?.icon) {
 		for (const c of token.icon.children) {
 			if (!!c._text) token.icon.removeChild(c);
 		}
@@ -166,7 +164,11 @@ Hooks.on("createToken", async (...args) => {
 		await updateAllIcons();}
 	,5);
 });
-Hooks.on("updateActor", async (...args) => {if (args[0].data.type == "minion") { await updateAllIcons();}});
+Hooks.on("updateActor", async (...args) => {
+	if (args[0].data.type == "minion" ) {
+		await updateAllIcons();
+	}
+});
 
 /* socketlib functions
 async function pushToggle(toggle) {
