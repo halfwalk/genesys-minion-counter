@@ -1,34 +1,21 @@
-var style = {
-	stroke: 'white',
-	align:'center',
-	fill: 'black',
-	alpha: 0.5
-};
-var fontSizeMult;
+var style = {stroke: 'white',align:'center',fill: 'black'};
+var fontSize;
 var isEnabled = false;
 const gmc = "genesys-minion-counter";
 
-Hooks.on("closeSettingsConfig", async () => {
-	updateAllIcons();
-});
-
-Hooks.on("canvasReady", async () => {
-	updateAllIcons();
-});
-
 Hooks.on("getSceneControlButtons", (controls) => {
 	console.log(controls);
-	if (game.user.isGM) {
+	 if (game.user.isGM) {
 		controls[0].tools.push({
 			name: "Minion Count Display",
 			title: "Minion Count Display",
 			icon: "fas fa-hashtag",
 			onClick: () => toggleVisible(),
-			visible: game.user.isGM,
+			visible: true,
 			toggle: true,
 			active: isEnabled
 		});
-	}
+	 }
 });
 
 Hooks.once("init", () => {
@@ -47,7 +34,7 @@ Hooks.once("init", () => {
 		},
 		default: "black",
 	});
-	game.settings.register(gmc, "fontSizeMult", {
+	game.settings.register(gmc, "fontSize", {
 		name: "Font Size",
 		scope: "world",
 		config: true,
@@ -72,26 +59,17 @@ Hooks.once("init", () => {
 		},
 		default: 0.8
 	});
-
+game.socket.on('module.genesys-minion-counter', (data) => {
+	if (data.operation === 'pushToggle') pushToggle(data);
+	if (data.operation === 'pushUpdate') pushUpdate(data);
 });
-
-Hooks.on("createToken", async () => {
-	setTimeout(async () => {
-		await updateAllIcons();
-	}, 5);
-});
-
-Hooks.on("updateActor", async (...args) => {
-	if (args[0].data.type == "minion") {
-		updateAllIcons();
-	}	
 });
 
 async function updateIcon (token) {
-	
 	for (const c of token.border.children) {
 		if (!!c._text) token.border.removeChild(c)
-	}		
+	
+	}
 	if (isEnabled) {
 		
 	let minioncount = token.actor.data.data.quantity.value;
@@ -104,18 +82,18 @@ async function updateIcon (token) {
 	text.y -= text.height;
 	text.alpha = game.settings.get(gmc, "fontAlpha");
 
-		 
 	token.border.addChild(text);
 	}
+	
 	
 	/*** attach counter to border.
 	**** renders neatly over the corner of the token, but also rotatse with the token ****
 	***
-	
+
 		for (const c of token.icon.children) {
 			if (!!c._text) token.icon.removeChild(c)
 		}		
-		if (game.settings.get(gmc,"isEnabled")) {
+		if (isEnabled) {
 		
 		let minioncount = token.actor.data.data.quantity.value;
 		if (minioncount < 0) minioncount = 0;
@@ -130,19 +108,42 @@ async function updateIcon (token) {
 		 
 		token.icon.addChild(text);
 		}
-	*/
+*/
 }
 
 async function updateAllIcons() {
 	style.fill = game.settings.get(gmc, "textColor");
-	style.fontSize = game.settings.get(gmc, "fontSizeMult");
+	style.fontSize = game.settings.get(gmc, "fontSize");
 	
 	for (const token of game.canvas.tokens.placeables.filter(i=> i.actor.data.type == "minion")) {
-		updateIcon(token);
+		await updateIcon(token);
 	}
 }
 
-function toggleVisible() {
+async function toggleVisible() {
 	isEnabled = !isEnabled;
-	updateAllIcons();
+	game.socket.emit('module.genesys-minion-counter', {
+		operation: 'pushToggle',
+		user: game.user.id,
+		counterIsVisible: isEnabled
+	});
+	await updateAllIcons();
+}
+
+Hooks.on("closeSettingsConfig", async () => {
+	game.socket.emit('module.genesys-minion-counter', {
+	operation: 'pushUpdate'});
+	await updateAllIcons();
+});
+Hooks.on("canvasReady", async () => { await updateAllIcons(); });
+Hooks.on("createToken", async () => { setTimeout(async () => { await updateAllIcons();}, 5);});
+Hooks.on("updateActor", async (...args) => {if (args[0].data.type == "minion") { await updateAllIcons();}});
+
+async function pushToggle(data) {
+	isEnabled = data.counterIsVisible;
+	await updateAllIcons();
+}
+
+async function pushUpdate(data) {
+  await updateAllIcons();
 }
