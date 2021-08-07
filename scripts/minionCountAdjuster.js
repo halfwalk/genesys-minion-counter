@@ -3,31 +3,16 @@ var fontSize, alpha;
 var isEnabled = false;
 const gmc = "genesys-minion-counter";
 
-
-/* with socketlib
-var socket;
-
-Hooks.once("socketlib.ready", () => {
-	socket = socketlib.registerModule(gmc);
-	socket.register("pushToggle", pushToggle);
-	socket.register("pushUpdate", pushUpdate);
-});
-
-*/
-
 Hooks.on("getSceneControlButtons", (controls) => {
-	// if (game.user.isGM) {
 		controls[0].tools.push({
 			name: "Minion Count Display",
 			title: "Minion Count Display",
 			icon: "fas fa-hashtag",
-//			onClick: () => {isEnabled = !isEnabled;socket.executeForEveryone("pushToggle", isEnabled);},
 			onClick: async () => {isEnabled = !isEnabled;await updateAllIcons();},
 			visible: true,
 			toggle: true,
 			active: isEnabled
 		});
-	// }
 });
 
 Hooks.once("init", () => {
@@ -154,11 +139,9 @@ Hooks.on("updateToken", async (...args) => {
 
 Hooks.on("closeSettingsConfig", async () => {
 	await updateAllIcons();
-	// socket.executeForEveryone("pushUpdate",{"isEnabled":isEnabled,"renderStyle":renderStyle});
 });
 Hooks.on("canvasReady", async () => { await updateAllIcons(); });
 Hooks.on("createToken", async (...args) => {
-//	console.log(args[0]);
 
 	setTimeout(async () => { 
 		await updateAllIcons();}
@@ -169,17 +152,3 @@ Hooks.on("updateActor", async (...args) => {
 		await updateAllIcons();
 	}
 });
-
-/* socketlib functions
-async function pushToggle(toggle) {
-	isEnabled = !isEnabled;
-//	console.log("pushing toggle state:" + toggle);
-	isEnabled = toggle;
-	await updateAllIcons();
-}
-
-async function pushUpdate(data) {
-//	console.log("update pushed from GM");
-  await updateAllIcons();
-}
-*/
