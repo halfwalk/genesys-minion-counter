@@ -1,10 +1,12 @@
 var style = {
-	fontSize: 100,
 	stroke: 'white',
-	align:'left',
-	strokeThickness:6,
-	fill: 'black'
+	align:'center',
+	fill: 'black',
+	alpha: 0.5
 };
+var fontSizeMult;
+var isEnabled = false;
+const gmc = "genesys-minion-counter";
 
 Hooks.on("closeSettingsConfig", async () => {
 	updateAllIcons();
@@ -14,8 +16,23 @@ Hooks.on("canvasReady", async () => {
 	updateAllIcons();
 });
 
+Hooks.on("getSceneControlButtons", (controls) => {
+	console.log(controls);
+	if (game.user.isGM) {
+		controls[0].tools.push({
+			name: "Minion Count Display",
+			title: "Minion Count Display",
+			icon: "fas fa-hashtag",
+			onClick: () => toggleVisible(),
+			visible: game.user.isGM,
+			toggle: true,
+			active: isEnabled
+		});
+	}
+});
+
 Hooks.once("init", () => {
-	game.settings.register("genesys-minion-counter", "textColor", {
+	game.settings.register(gmc, "textColor", {
 		name: "Text Color",
 		scope: "world",
 		config: true,
@@ -30,15 +47,32 @@ Hooks.once("init", () => {
 		},
 		default: "black",
 	});
-	game.settings.register("genesys-minion-counter", "isEnabled", {
-		name: "Enabled",
+	game.settings.register(gmc, "fontSizeMult", {
+		name: "Font Size",
 		scope: "world",
 		config: true,
-		type: Boolean,
-		default: true
+		type: Number,
+		range: {
+			min: 12,
+			max: 36,
+			step: 1
+		},
+		default: 24
+	});
+	game.settings.register(gmc, "fontAlpha", {
+		name: "Font Alpha",
+		hint: "(make it partially transparent)",
+		scope: "world",
+		config: true,
+		type: Number,
+		range: {
+			min: 0,
+			max: 1,
+			step: 0.1
+		},
+		default: 0.8
 	});
 
-		
 });
 
 Hooks.on("createToken", async () => {
@@ -54,24 +88,61 @@ Hooks.on("updateActor", async (...args) => {
 });
 
 async function updateIcon (token) {
+	
+	for (const c of token.border.children) {
+		if (!!c._text) token.border.removeChild(c)
+	}		
+	if (isEnabled) {
+		
+	let minioncount = token.actor.data.data.quantity.value;
+	 if (minioncount < 0) minioncount = 0;
+			
+	style.strokeThickness = style.fontSize/20;
+		
+	let text = new PreciseText(minioncount,style);
+	text.x = token.icon.position.x - text.width/2;
+	text.y -= text.height;
+	text.alpha = game.settings.get(gmc, "fontAlpha");
+
+		 
+	token.border.addChild(text);
+	}
+	
+	/*** attach counter to border.
+	**** renders neatly over the corner of the token, but also rotatse with the token ****
+	***
+	
 		for (const c of token.icon.children) {
 			if (!!c._text) token.icon.removeChild(c)
 		}		
-		if (game.settings.get("genesys-minion-counter","isEnabled")) {
+		if (game.settings.get(gmc,"isEnabled")) {
 		
 		let minioncount = token.actor.data.data.quantity.value;
 		if (minioncount < 0) minioncount = 0;
-		let text = new PIXI.Text(minioncount,style);
-		text.x -= token.icon.width;
-		text.y -= token.icon.height;
+			
+		style.fontSize = 100;
+		style.strokeThickness = style.fontSize/20;
+		
+		let text = new PreciseText(minioncount,style);
+		text.x -= token.icon.texture.width/2;
+		text.y -= token.icon.texture.height/2;
+		text.rotation = token.icon.rotation;
 		 
 		token.icon.addChild(text);
 		}
+	*/
 }
 
 async function updateAllIcons() {
-	style.fill = game.settings.get("genesys-minion-counter", "textColor");
+	style.fill = game.settings.get(gmc, "textColor");
+	style.fontSize = game.settings.get(gmc, "fontSizeMult");
+	
 	for (const token of game.canvas.tokens.placeables.filter(i=> i.actor.data.type == "minion")) {
 		updateIcon(token);
 	}
+}
+
+function toggleVisible() {
+	isEnabled = !isEnabled;
+	updateAllIcons();
 }
