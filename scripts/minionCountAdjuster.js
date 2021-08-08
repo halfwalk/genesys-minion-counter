@@ -72,6 +72,8 @@ Hooks.once("init", () => {
 		},
 		default: "icon"
 	});
+	renderstyle = game.settings.get(gmc, "renderStyle");
+	
 });
 
 async function updateIcon (token,data) {
