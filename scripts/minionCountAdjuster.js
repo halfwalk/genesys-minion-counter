@@ -1,7 +1,12 @@
 var style = {stroke: 'white',align:'center',fill: 'black'};
 var fontSize, alpha;
 var isEnabled = false;
+var rot;
 const gmc = "genesys-minion-counter";
+
+class Counter extends PreciseText {
+	super() {}
+}
 
 Hooks.on("getSceneControlButtons", (controls) => {
 		controls[0].tools.push({
@@ -57,60 +62,52 @@ Hooks.once("init", () => {
 		default: 0.8
 	});
 	game.settings.register(gmc, "renderStyle", {
-		name: "Render Style",
-		hint: `"Border" renders the counter above the token. It takes up more space, but does not rotate with the token. "Icon" renders on top of the token, more neatly in the corner. It's more compact, but suffers the side effect of rotating along with the token. If you don't ever rotate your tokens, "Icon" will probably look better.`,
+		name: "Position",
 		scope: "client",
 		config: true,
 		type: String,
 		choices: {
-			"border": "Border",
-			"icon": "Icon"
+			"corner": "Corner",
+			"above": "Above"
 		},
-		default: "border"
+		default: "icon"
 	});
 });
 
-async function updateIcon (token) {
+async function updateIcon (token,data) {
 	
-	if ("children" in token?.border) {
-		for (const c of token.border.children) {
-			if (!!c._text) token.border.removeChild(c);
-		}
+	for (const c of token.children) {
+		if (c instanceof Counter) token.removeChild(c);
 	}
-	if ("children" in token?.icon) {
-		for (const c of token.icon.children) {
-			if (!!c._text) token.icon.removeChild(c);
-		}
+	for (const c of token.border?.children) {
+		if (c instanceof Counter) token.border.removeChild(c);
 	}
-	if (isEnabled && renderStyle == "border") {
-//		console.log("a wild update appeared!");
+	
+	if (isEnabled && renderStyle == "above") {
 	let minioncount = token.actor.data.data.quantity.value;
 	if (minioncount < 0) minioncount = 0;	
-	let text = new PreciseText(minioncount,style);
+	let text = new Counter(minioncount,style);
 	text.x = token.icon.position.x - text.width/2;
 	text.y -= text.height;
 	text.alpha = alpha;
 
 	token.border.addChild(text);
-	} else if (isEnabled && renderStyle == "icon") {
-	
-	/*** attach counter to icon.
-	**** renders neatly over the corner of the token, but also rotates with the token ****
-	****/
+	} else if (isEnabled && renderStyle == "corner") {
 		
-		let minioncount = token.actor.data.data.quantity.value;
+		let minioncount = token.actor.data.data.quantity?.value;
 		if (minioncount < 0) minioncount = 0;
 			
 		style.strokeThickness = style.fontSize/20;
-		let text = new PreciseText(minioncount,style);
-	
-		text.x -= token.icon.texture.width/2;
-		text.y -= token.icon.texture.height/2;
+		let text = new Counter(minioncount,style);
+		
+		const rot = token.icon.rotation*(180/Math.PI);
+		console.log(rot);
+		text.x = token.children[1].width - style.fontSize;
+
 		text.alpha = alpha;
-		text.height *= 1/token.icon.transform.scale.y;
-		text.width *= 1/token.icon.transform.scale.x;
+		text.isCounter = true;
 		 
-		token.icon.addChild(text);
+		token.addChild(text);
 	}
 }
 
@@ -125,17 +122,13 @@ async function updateAllIcons() {
 	}
 }
 
-/* ***** future todo: icon label rotation ******
-
 Hooks.on("updateToken", async (...args) => {
 	console.log(args[0]);
 	if (isEnabled && renderStyle == "icon" && args[0].actor.type == "minion" && "rotation" in args[1]) {
 		console.log(`A minion token rotated to ${args[1].rotation}`);
-		await updateIcon(canvas.tokens.placeables.find(i=>i.id == args[0].id));
-	}
+		await updateIcon(canvas.tokens.placeables.find(i=>i.id == args[0].id),args[1].rotation);
+	} else await updateIcon(canvas.tokens.placeables.find(i=>i.id == args[0].id));
 });
-*/
-		
 
 Hooks.on("closeSettingsConfig", async () => {
 	await updateAllIcons();
@@ -148,7 +141,7 @@ Hooks.on("createToken", async (...args) => {
 	,5);
 });
 Hooks.on("updateActor", async (...args) => {
-	if (args[0].data.type == "minion" ) {
+	if (args[0].data.type == "minion") {
 		await updateAllIcons();
 	}
 });
