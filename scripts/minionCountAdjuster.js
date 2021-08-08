@@ -72,8 +72,13 @@ Hooks.once("init", () => {
 		},
 		default: "icon"
 	});
-	renderstyle = game.settings.get(gmc, "renderStyle");
+
 	
+});
+
+Hooks.on("canvasReady", async () => {
+	renderstyle = game.settings.get(gmc, "renderStyle");
+	await updateAllIcons();
 });
 
 async function updateIcon (token,data) {
@@ -103,7 +108,6 @@ async function updateIcon (token,data) {
 		let text = new Counter(minioncount,style);
 		
 		const rot = token.icon.rotation*(180/Math.PI);
-		console.log(rot);
 		text.x = token.children[1].width - style.fontSize;
 
 		text.alpha = alpha;
@@ -123,14 +127,6 @@ async function updateAllIcons() {
 		await updateIcon(token);
 	}
 }
-
-Hooks.on("updateToken", async (...args) => {
-	console.log(args[0]);
-	if (isEnabled && renderStyle == "icon" && args[0].actor.type == "minion" && "rotation" in args[1]) {
-		console.log(`A minion token rotated to ${args[1].rotation}`);
-		await updateIcon(canvas.tokens.placeables.find(i=>i.id == args[0].id),args[1].rotation);
-	} else await updateIcon(canvas.tokens.placeables.find(i=>i.id == args[0].id));
-});
 
 Hooks.on("closeSettingsConfig", async () => {
 	await updateAllIcons();
