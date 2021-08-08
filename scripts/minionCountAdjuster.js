@@ -108,7 +108,7 @@ async function updateIcon (token,data) {
 		let text = new Counter(minioncount,style);
 		
 		const rot = token.icon.rotation*(180/Math.PI);
-		text.x = token.children[1].width - style.fontSize;
+		text.x = token.children[1].width - text.width;
 
 		text.alpha = alpha;
 		text.isCounter = true;
