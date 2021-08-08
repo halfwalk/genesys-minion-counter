@@ -10,5 +10,7 @@ It adds a toggle button to the Tokens toolbar.
 
 You can also choose to have the icon render above the token, or in the corner.
 
+![iconstyle.png](https://github.com/halfwalk/genesys-minion-counter/blob/master/images/iconstyle.png?raw=true)![img](https://raw.githubusercontent.com/halfwalk/genesys-minion-counter/master/images/borderstyle.png)
+
 
 
