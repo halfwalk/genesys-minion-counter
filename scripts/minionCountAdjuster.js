@@ -123,7 +123,7 @@ async function updateAllIcons() {
 	style.strokeThickness = style.fontSize/20;
 	alpha = game.settings.get(gmc,"fontAlpha");
 	renderStyle = game.settings.get(gmc,"renderStyle");
-	for (const token of game.canvas.tokens.placeables.filter(i=> i.actor.data.type == "minion")) {
+	for (const token of game.canvas.tokens.placeables.filter(i=> i.actor?.data.type == "minion")) {
 		await updateIcon(token);
 	}
 }
